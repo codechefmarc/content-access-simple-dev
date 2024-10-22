@@ -1,4 +1,4 @@
-name: local-drupal-dev
+name: content-access-simple-dev
 recipe: drupal10
 config:
   webroot: web
@@ -8,7 +8,7 @@ tooling:
   drush:
     service: appserver
     env:
-      DRUSH_OPTIONS_URI: "https://local-drupal-dev.lndo.site"
+      DRUSH_OPTIONS_URI: "https://content-access-simple-dev.lndo.site"
   xdebug-on:
     service: appserver
     description: Enable xdebug for nginx.

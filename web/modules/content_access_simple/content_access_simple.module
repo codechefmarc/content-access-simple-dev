@@ -1,0 +1,22 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+
+function content_access_simple_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\node\NodeForm $formObject */
+  $formObject = $form_state->getFormObject();
+
+  /** @var \Drupal\node\Entity\Node $node */
+  $node = $formObject->getEntity();
+
+  // Get the access manager service.
+  /** @var \Drupal\content_access_simple\AccessManager $access_manager */
+  $access_manager = \Drupal::service('content_access_simple.access_manager');
+
+  // Checks permissions as well as if per-node Content Access is enabled.
+  if ($access_manager->hasAccess($node)) {
+    // Add the content access form elements.
+    $access_manager->addAccessFormElements($form, $node);
+  }
+
+}
