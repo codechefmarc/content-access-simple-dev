@@ -17,6 +17,29 @@ function content_access_simple_form_node_form_alter(&$form, FormStateInterface $
   if ($access_manager->hasAccess($node)) {
     // Add the content access form elements.
     $access_manager->addAccessFormElements($form, $node);
-  }
 
+    // Add submit handler to node form.
+    foreach (array_keys($form['actions']) as $action) {
+      if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+        $form['actions'][$action]['#submit'][]  = 'content_access_simple_node_form_submit';
+      }
+    }
+  }
+}
+
+/**
+ * Submit callback for node_form.
+ *
+ * @see content_access_simple_form_node_form_alter().
+ */
+function content_access_simple_node_form_submit($form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+
+// Do all the things... so, first, need to get the full array of settings from content access
+// Then get our changed values
+// Update that settings array with our changed values
+// Save the entire array of settings back to content access (using their functions)
+
+  // /** @var \Drupal\node\NodeInterface $node */
+  // content_access_lite_set_content_access($node, $form_state->getValue('content_access_lite_content_visibility'));
 }

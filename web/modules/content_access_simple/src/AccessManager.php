@@ -56,38 +56,26 @@ class AccessManager {
   }
 
   /**
-   * Returns a role name from a role machine name.
-   *
-   * @var string $role_id
-   *   The role machine name.
-   *
-   * @return string|NULL
-   *   The role human-readable name.
+   * Gets all the roles in the system.
    */
-  private function getRoleName($role_id) {
-    $roleStorage = $this->entityTypeManager->getStorage('user_role');
-    $roleName = $roleStorage->load($role_id);
-    if (!$roleName) {
-      return NULL;
+  private function getRoles() {
+    $user_roles = $this->entityTypeManager->getStorage('user_role')->loadMultiple();
+    $roles = [];
+    foreach ($user_roles as $role) {
+      /** @var Drupal\user\Entity\Role $role */
+      $roles[$role->id()] = $role->get('label');
     }
-    return $roleName->label();
+    return $roles;
   }
 
   /**
    * Adds content access form elements to the node form.
    */
   public function addAccessFormElements(array &$form, $node) {
-
     $defaults = [];
 
     foreach (_content_access_get_operations() as $op => $label) {
       $defaults[$op] = content_access_per_node_setting($op, $node);
-    }
-
-    //kint($defaults['view']);
-
-    foreach ($defaults['view'] as $role_id) {
-      kint($this->getRoleName($role_id));
     }
 
     $form['content_access_simple'] = [
@@ -96,6 +84,26 @@ class AccessManager {
       '#open' => FALSE,
       '#weight' => 100,
     ];
+
+    $form['content_access_simple']['view'] = [
+      '#type' => 'checkboxes',
+      '#title' => $this->t('Visibility'),
+      '#options' => $this->getRoles(),
+      '#default_value' => $defaults['view'],
+      '#prefix' => '<div class="content_access-div">',
+      '#suffix' => '</div>',
+    ];
+
+    $form['content_access_simple']['view']['#process'] = [
+        [
+          '\Drupal\Core\Render\Element\Checkboxes',
+          'processCheckboxes',
+        ],
+        [
+          '\Drupal\content_access\Form\ContentAccessRoleBasedFormTrait',
+          'disableCheckboxes',
+        ],
+      ];
 
   }
 
