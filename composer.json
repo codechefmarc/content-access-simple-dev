@@ -27,6 +27,7 @@
         "drupal/devel_kint_extras": "^1.1",
         "drupal/emulsify": "^5.0",
         "drupal/token": "^1.13",
+        "drupal/view_unpublished": "^1.3",
         "drush/drush": "^12.4"
     },
     "conflict": {
