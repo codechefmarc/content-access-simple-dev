@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -70,10 +71,22 @@ function content_access_simple_node_form_submit($form, FormStateInterface $form_
   // Update Content Access settings.
   content_access_save_per_node_settings($node, $origSettings);
 
-  // Rebuild permissions if they checked the box.
-  $rebuild = $form_state->getValue('rebuild');
-  if ($rebuild) {
-    node_access_rebuild(TRUE);
+  // Apply new settings.
+  $entityTypeManager = \Drupal::service('entity_type.manager');
+  $grantStorage = \Drupal::service('node.grant_storage');
+  $moduleHandler = \Drupal::service('module_handler');
+  $grants = $entityTypeManager->getAccessControlHandler('node')->acquireGrants($node);
+  $grantStorage->write($node, $grants);
+  $moduleHandler->invokeAll('per_node', [$origSettings, $node]);
+
+  foreach (Cache::getBins() as $cache_backend) {
+    $cache_backend->deleteAll();
   }
+
+  // Rebuild permissions if they checked the box.
+  // $rebuild = $form_state->getValue('rebuild');
+  // if ($rebuild) {
+  //   node_access_rebuild(TRUE);
+  // }
 
 }
